@@ -3,22 +3,43 @@ import ReactDOM from 'react-dom';
 
 require("./style.css");
 
-class Square extends React.Component {
-  render() {
-    return (
-      <button className="square">
-        {/* TODO */}
-      </button>
-    );
-  }
+function Square(props) {
+  return (
+    <button className="square" onClick={() => props.onClick()}>
+      {props.value}
+    </button>
+  );
 }
 
+Square.propTypes = {
+  value: React.PropTypes.string,
+  onClick: React.PropTypes.func
+};
+
 class Board extends React.Component {
-  renderSquare(i) {
-    return <Square />;
+  constructor() {
+    super();
+    this.state = {
+      squares: Array(9).fill(null),
+      xIsNext: true,
+    };
   }
+  renderSquare(i) {
+    return <Square value={this.state.squares[i]} onClick={() => this.handleClick(i)} />;
+  }
+
+  handleClick(i) {
+    const squares = this.state.squares.slice();
+    if (calculateWinner(squares) || squares[i]) return;
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({
+      squares: squares,
+      xIsNext: !this.state.xIsNext
+    });
+  }
+
   render() {
-    const status = 'Next player: X';
+    const status = 'Next player: ' + (calculateWinner(this.state.squares) ? '-' : this.state.xIsNext ? 'X' : 'O');
     return (
       <div>
         <div className="status">{status}</div>
